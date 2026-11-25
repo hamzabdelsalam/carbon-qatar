@@ -103,14 +103,25 @@ h1 em { display: block; font-style: normal; color: var(--signal); }
 .hero .button-outline { background: #16131080; border-color: #f7f6f28c; color: var(--paper); }
 .hero .button-outline:hover { color: var(--ink); }
 .hero :focus-visible { outline-color: var(--signal); }
-.video-toggle { grid-column: 1 / -1; justify-self: end; min-height: 44px; padding-inline: 12px; color: var(--paper); background: #15120fd9; border: 1px solid #f7f6f250; cursor: pointer; font-size: .875rem; }
-.video-toggle:hover { border-color: var(--signal); }
 
 .services { display: grid; grid-template-columns: .88fr 1.12fr; gap: clamp(32px, 7vw, 112px); padding-block: clamp(80px, 12vw, 170px); }
 h2 { font-size: clamp(3.2rem, 7vw, 7rem); }
 .section-heading h2, .studio h2 { margin-top: 22px; }
 .service-list { border-top: 1px solid #a9a59b; }
-.service-list details { border-bottom: 1px solid #a9a59b; }
+.service-list details { position: relative; border-bottom: 1px solid #a9a59b; }
+.service-list details::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 -1px;
+  height: 2px;
+  pointer-events: none;
+  background: #bd8700;
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform .24s var(--ease);
+}
+.service-list details[open]::after { transform: scaleX(1); }
+[dir="rtl"] .service-list details::after { transform-origin: right; }
 summary { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 19px 4px; font-size: clamp(1.1rem, 2.2vw, 1.75rem); font-weight: 760; cursor: pointer; list-style: none; }
 summary::-webkit-details-marker { display: none; }
 summary:hover { color: #755400; }
@@ -124,7 +135,24 @@ details[open] .disclosure::after { rotate: 0deg; }
 .service-content a { display: inline-flex; align-items: center; min-height: 44px; font-weight: 750; text-underline-offset: 4px; }
 details[open] .service-content { animation: settle .16s ease-out both; }
 
-.studio { padding-block: clamp(72px, 10vw, 140px); background: var(--ink); color: var(--paper); }
+.studio { position: relative; isolation: isolate; overflow: clip; padding-block: clamp(72px, 10vw, 140px); background: var(--ink); color: var(--paper); }
+.studio::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: 0 -25%;
+  pointer-events: none;
+  background: linear-gradient(121deg, transparent 37%, #b0801226 49%, #d2a4253b 51%, #b0801212 59%, transparent 67%);
+}
+.studio::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: var(--signal);
+  transform-origin: left;
+}
+[dir="rtl"] .studio::after { transform-origin: right; }
 .studio-grid { display: grid; grid-template-columns: 1.25fr 1fr; align-items: end; gap: clamp(26px, 7vw, 112px); }
 .studio-copy { border-inline-start: 1px solid #69645a; padding-inline-start: clamp(20px, 3vw, 46px); }
 .studio .eyebrow { color: var(--signal); }
@@ -153,7 +181,11 @@ details[open] .service-content { animation: settle .16s ease-out both; }
 @keyframes arrive { from { transform: translateY(25px); opacity: 0; } }
 @keyframes trace { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes settle { from { opacity: .55; } }
-@keyframes studio-rule { from { border-inline-start-color: transparent; } to { border-inline-start-color: #69645a; } }
+@keyframes hero-depth { from { transform: scale(1); } to { transform: translateY(8%) scale(1.14); } }
+@keyframes studio-light { from { transform: translateX(-22%); } to { transform: translateX(20%); } }
+@keyframes studio-light-rtl { from { transform: translateX(22%); } to { transform: translateX(-20%); } }
+@keyframes studio-heading { from { transform: translateY(35px); opacity: .65; } to { transform: none; opacity: 1; } }
+@keyframes quote-settle { from { transform: translateY(26px); } to { transform: none; } }
 
 @media (prefers-reduced-motion: no-preference) {
   html { scroll-behavior: smooth; }
@@ -162,11 +194,29 @@ details[open] .service-content { animation: settle .16s ease-out both; }
   .hero-intro { animation: arrive .76s .14s var(--ease) both; }
   .hero-video { transition: opacity .42s ease; }
   .nav:not([hidden]) { animation: settle .17s ease-out both; }
-  @supports (animation-timeline: scroll()) {
+  @supports (animation-timeline: view()) {
+    .hero { view-timeline-name: --hero; }
+    .hero-media { animation: hero-depth linear both; animation-timeline: --hero; animation-range: exit 0% exit 100%; }
     .progress { background: var(--signal); transform-origin: left; animation: trace linear both; animation-timeline: scroll(root); }
     [dir="rtl"] .progress { transform-origin: right; }
-    .studio-copy { animation: studio-rule linear both; animation-timeline: view(); animation-range: entry 12% entry 100%; }
+    .service-list details { view-timeline-name: --service; }
+    .service-list details[open]::after { animation: trace linear both; animation-timeline: --service; animation-range: entry 8% entry 65%; }
+    .studio { view-timeline-name: --studio; }
+    .studio::before { animation: studio-light linear both; animation-timeline: --studio; animation-range: entry 0% exit 78%; }
+    [dir="rtl"] .studio::before { animation-name: studio-light-rtl; }
+    .studio::after { animation: trace linear both; animation-timeline: --studio; animation-range: entry 4% entry 62%; }
+    .studio .section-heading { animation: studio-heading linear both; animation-timeline: view(); animation-range: entry 4% entry 88%; }
+    .quote-form { animation: quote-settle linear both; animation-timeline: view(); animation-range: entry 6% entry 70%; }
   }
+  @supports not (animation-timeline: view()) {
+    .studio.has-entered .section-heading { animation: studio-heading .65s var(--ease) both; }
+    .studio.has-entered::after { animation: trace .65s var(--ease) both; }
+    .quote-form.has-entered { animation: quote-settle .6s var(--ease) both; }
+  }
+}
+
+@media (min-width: 681px) and (prefers-reduced-motion: no-preference) {
+  .services > .section-heading { position: sticky; top: 122px; align-self: start; }
 }
 
 @media (max-width: 900px) {

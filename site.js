@@ -80,34 +80,14 @@ form.addEventListener("submit", event => {
 });
 
 const video = document.querySelector(".hero-video");
-const videoToggle = document.querySelector(".video-toggle");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-function playBackground() {
-  if (!video.getAttribute("src")) video.src = video.dataset.src;
-  video.muted = true;
-  video.play().catch(() => {
-    videoToggle.textContent = videoToggle.dataset.play;
-  });
-}
 
 video.addEventListener("playing", () => {
   video.classList.add("is-visible");
-  videoToggle.textContent = videoToggle.dataset.pause;
-});
-
-video.addEventListener("pause", () => {
-  videoToggle.textContent = videoToggle.dataset.play;
 });
 
 video.addEventListener("error", () => {
   video.classList.remove("is-visible");
-  videoToggle.hidden = true;
-});
-
-videoToggle.addEventListener("click", () => {
-  if (video.paused) playBackground();
-  else video.pause();
 });
 
 reducedMotion.addEventListener("change", event => {
@@ -117,5 +97,20 @@ reducedMotion.addEventListener("change", event => {
   }
 });
 
-videoToggle.hidden = false;
-if (!reducedMotion.matches) playBackground();
+if (!reducedMotion.matches) {
+  video.src = video.dataset.src;
+  video.play().catch(() => {});
+}
+
+if (!CSS.supports("animation-timeline: view()") && "IntersectionObserver" in window) {
+  const revealObserver = new IntersectionObserver(entries => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.classList.add("has-entered");
+      revealObserver.unobserve(entry.target);
+    }
+  }, { threshold: 0.18 });
+
+  revealObserver.observe(document.querySelector(".studio"));
+  revealObserver.observe(form);
+}
