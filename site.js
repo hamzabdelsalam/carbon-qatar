@@ -45,6 +45,10 @@ document.addEventListener("keydown", event => {
 
 const form = document.querySelector(".quote-form");
 const service = document.querySelector("#service");
+const isArabic = document.documentElement.lang === "ar";
+const message = isArabic
+  ? { greeting: "مرحباً كاربون، أود طلب عرض سعر.", service: "الخدمة", vehicle: "السيارة", notes: "ملاحظات" }
+  : { greeting: "Hi Carbon! I’d like a quote.", service: "Service", vehicle: "Vehicle", notes: "Notes" };
 form.hidden = false;
 
 document.querySelectorAll("[data-service]").forEach(link => {
@@ -65,12 +69,53 @@ form.addEventListener("submit", event => {
     return;
   }
   const lines = [
-    "Hi Carbon! I’d like a quote.",
-    `Service: ${fields.get("service")}`,
-    `Vehicle: ${vehicle}`,
+    message.greeting,
+    `${message.service}: ${fields.get("service")}`,
+    `${message.vehicle}: ${vehicle}`,
   ];
-  if (notes) lines.push(`Notes: ${notes}`);
+  if (notes) lines.push(`${message.notes}: ${notes}`);
   const destination = new URL(form.action);
   destination.searchParams.set("text", lines.join("\n"));
   window.location.assign(destination);
 });
+
+const video = document.querySelector(".hero-video");
+const videoToggle = document.querySelector(".video-toggle");
+const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+
+function playBackground() {
+  if (!video.getAttribute("src")) video.src = video.dataset.src;
+  video.muted = true;
+  video.play().catch(() => {
+    videoToggle.textContent = videoToggle.dataset.play;
+  });
+}
+
+video.addEventListener("playing", () => {
+  video.classList.add("is-visible");
+  videoToggle.textContent = videoToggle.dataset.pause;
+});
+
+video.addEventListener("pause", () => {
+  videoToggle.textContent = videoToggle.dataset.play;
+});
+
+video.addEventListener("error", () => {
+  video.classList.remove("is-visible");
+  videoToggle.hidden = true;
+});
+
+videoToggle.addEventListener("click", () => {
+  if (video.paused) playBackground();
+  else video.pause();
+});
+
+reducedMotion.addEventListener("change", event => {
+  if (event.matches) {
+    video.pause();
+    video.classList.remove("is-visible");
+  }
+});
+
+videoToggle.hidden = false;
+if (!reducedMotion.matches) playBackground();
