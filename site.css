@@ -80,8 +80,7 @@ section[id] { scroll-margin-top: 100px; }
 .hero { position: relative; isolation: isolate; overflow: clip; background: #141311; color: var(--paper); }
 .hero-media, .hero-video, .hero-media::after { position: absolute; inset: 0; width: 100%; height: 100%; }
 .hero-media { z-index: -1; background: #1e1712 url("/assets/carbon-interior.webp") center 46% / cover no-repeat; }
-.hero-video { object-fit: cover; object-position: center 46%; opacity: 0; }
-.hero-video.is-visible { opacity: 1; }
+.hero-video { object-fit: cover; object-position: center 46%; }
 .hero-media::after {
   content: "";
   background: linear-gradient(0deg, #13110ff2 1%, #13110f86 45%, #13110f52 100%), linear-gradient(90deg, #0e0d0cd1, #13110f1a 62%, #0e0d0c77);
@@ -103,6 +102,30 @@ h1 em { display: block; font-style: normal; color: var(--signal); }
 .hero .button-outline { background: #16131080; border-color: #f7f6f28c; color: var(--paper); }
 .hero .button-outline:hover { color: var(--ink); }
 .hero :focus-visible { outline-color: var(--signal); }
+.hero-play {
+  position: absolute;
+  inset-block-start: 12px;
+  inset-inline-end: max(var(--gutter), calc((100% - 1440px) / 2));
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  min-width: 44px;
+  padding-inline: 12px;
+  border: 1px solid #f7f6f28c;
+  background: #161310a8;
+  color: var(--paper);
+  text-decoration: none;
+  font-size: .875rem;
+  font-weight: 700;
+}
+.hero-play::before {
+  content: "";
+  border-block: 5px solid transparent;
+  border-left: 8px solid var(--signal);
+}
+.hero-play:hover { border-color: var(--signal); }
 
 .services { display: grid; grid-template-columns: .88fr 1.12fr; gap: clamp(32px, 7vw, 112px); padding-block: clamp(80px, 12vw, 170px); }
 h2 { font-size: clamp(3.2rem, 7vw, 7rem); }
@@ -192,7 +215,6 @@ details[open] .service-content { animation: settle .16s ease-out both; }
   .hero-copy > * { animation: arrive .76s var(--ease) both; }
   .hero-copy h1 { animation-delay: .065s; }
   .hero-intro { animation: arrive .76s .14s var(--ease) both; }
-  .hero-video { transition: opacity .42s ease; }
   .nav:not([hidden]) { animation: settle .17s ease-out both; }
   @supports (animation-timeline: view()) {
     .hero { view-timeline-name: --hero; }
@@ -265,6 +287,7 @@ details[open] .service-content { animation: settle .16s ease-out both; }
   .hero h1 { margin-top: 12px; font-size: clamp(3rem, 10.6vw, 4rem); }
   [dir="rtl"] .hero h1 { font-size: clamp(2.6rem, 9.5vw, 3.5rem); }
   .hero-description { margin-bottom: 12px; }
+  .hero-play span { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 
 @media (max-width: 680px) {

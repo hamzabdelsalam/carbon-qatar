@@ -80,26 +80,51 @@ form.addEventListener("submit", event => {
 });
 
 const video = document.querySelector(".hero-video");
+const videoPlay = document.querySelector(".hero-play");
 const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
+function playReel() {
+  video.hidden = false;
+  video.muted = true;
+  video.playsInline = true;
+  if (!video.getAttribute("src")) video.src = video.dataset.src;
+  return video.play();
+}
+
 video.addEventListener("playing", () => {
-  video.classList.add("is-visible");
+  if (document.activeElement === videoPlay) {
+    document.querySelector(".hero-actions a").focus({ preventScroll: true });
+  }
+  videoPlay.hidden = true;
 });
 
 video.addEventListener("error", () => {
-  video.classList.remove("is-visible");
+  video.hidden = true;
+  videoPlay.hidden = false;
 });
 
 reducedMotion.addEventListener("change", event => {
   if (event.matches) {
+    video.autoplay = false;
     video.pause();
-    video.classList.remove("is-visible");
+    video.hidden = true;
+    videoPlay.hidden = false;
   }
 });
 
-if (!reducedMotion.matches) {
-  video.src = video.dataset.src;
-  video.play().catch(() => {});
+videoPlay.addEventListener("click", event => {
+  if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey || video.error) return;
+  event.preventDefault();
+  playReel().catch(() => window.location.assign(videoPlay.href));
+});
+
+if (reducedMotion.matches) {
+  video.autoplay = false;
+  videoPlay.hidden = false;
+} else {
+  playReel().catch(() => {
+    videoPlay.hidden = false;
+  });
 }
 
 if (!CSS.supports("animation-timeline: view()") && "IntersectionObserver" in window) {
