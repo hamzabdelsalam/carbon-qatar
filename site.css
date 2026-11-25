@@ -64,8 +64,8 @@ section[id] { scroll-margin-top: 100px; }
 .eyebrow { display: flex; align-items: center; gap: 9px; font-size: .875rem; font-weight: 800; line-height: 1.4; letter-spacing: .095em; text-transform: uppercase; }
 .eyebrow span { display: inline-block; width: 14px; height: 2px; background: currentColor; }
 h1, h2 { font-weight: 850; letter-spacing: -.085em; line-height: .91; }
-h1 { margin-block: 24px 28px; font-size: clamp(4.7rem, 9.7vw, 10rem); }
-h1 span { display: block; }
+h1 { margin-block: 24px 28px; font-size: clamp(4.7rem, 8.35vw, 8.8rem); }
+h1 span { display: block; white-space: nowrap; }
 .outlined { color: transparent; -webkit-text-stroke: 2px var(--ink); }
 .hero-description { max-width: 34ch; margin-bottom: 26px; font-size: clamp(1.04rem, 1.65vw, 1.4rem); line-height: 1.45; }
 .hero-art { position: relative; isolation: isolate; aspect-ratio: 1.03; align-self: center; }
@@ -142,7 +142,7 @@ details[open] .service-content { animation: settle .16s ease-out both; }
 
 @media (max-width: 900px) {
   .hero-grid { gap: 0; min-height: 610px; }
-  h1 { font-size: clamp(4.25rem, 10vw, 7.1rem); }
+  h1 { font-size: clamp(3.9rem, 8.7vw, 5.8rem); }
 }
 
 @media (max-width: 680px) {
@@ -165,7 +165,7 @@ details[open] .service-content { animation: settle .16s ease-out both; }
   section[id] { scroll-margin-top: 80px; }
   .hero-grid, .services, .studio-grid, .quote-grid { grid-template-columns: 1fr; }
   .hero-grid { padding-block: 55px 20px; min-height: auto; }
-  h1 { font-size: clamp(3.5rem, 13.2vw, 5.7rem); margin-block: 17px 23px; }
+  h1 { font-size: clamp(3.2rem, 13.2vw, 5.7rem); margin-block: 17px 23px; }
   .outlined { -webkit-text-stroke-width: 1.5px; }
   .hero-art { width: min(100%, 365px); aspect-ratio: 1.62; margin-inline: auto; margin-top: 15px; }
   .art-sheet { inset: 26% 13%; }
