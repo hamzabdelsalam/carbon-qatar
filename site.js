@@ -79,6 +79,114 @@ form.addEventListener("submit", event => {
   window.location.assign(destination);
 });
 
+const heroCanvas = document.querySelector(".hero-media canvas");
+const heroMotion = window.matchMedia("(prefers-reduced-motion: no-preference)");
+const heroContext = heroCanvas.getContext("2d", { alpha: false });
+
+if (heroContext && "IntersectionObserver" in window) {
+  const framesPerSheet = 12;
+  const framesPerSecond = 12;
+  const columns = 4;
+  const sheetCount = 4;
+  const loopDuration = sheetCount * framesPerSheet * 1000 / framesPerSecond;
+  const sheets = new Map();
+  const sheetBlobs = new Map();
+  const loadingSheets = new Set();
+  const { width, height } = heroCanvas;
+  const initialSection = document.getElementById(location.hash.slice(1));
+  let waitingForAnchor = initialSection?.matches("section[id]") ?? false;
+  let inView = false;
+  let animationFrame = 0;
+  let elapsed = 0;
+  let previousTime = null;
+  let renderedFrame = -1;
+  let playbackFailed = false;
+
+  function scheduleHeroFrame() {
+    if (waitingForAnchor || !inView || !heroMotion.matches || document.hidden || animationFrame || playbackFailed) return;
+    animationFrame = requestAnimationFrame(drawHeroFrame);
+  }
+
+  async function loadHeroSheet(index) {
+    if (sheets.has(index) || loadingSheets.has(index)) return;
+    loadingSheets.add(index);
+    let imageUrl;
+    try {
+      let blob = sheetBlobs.get(index);
+      if (!blob) {
+        const response = await fetch(`/assets/carbon-hero-${index + 1}.webp`);
+        if (!response.ok) throw new Error("Could not load hero footage.");
+        blob = await response.blob();
+        sheetBlobs.set(index, blob);
+      }
+      const image = new Image();
+      imageUrl = URL.createObjectURL(blob);
+      image.src = imageUrl;
+      await image.decode();
+      sheets.set(index, image);
+      scheduleHeroFrame();
+    } catch {
+      playbackFailed = true;
+      heroObserver.disconnect();
+    } finally {
+      if (imageUrl) URL.revokeObjectURL(imageUrl);
+      loadingSheets.delete(index);
+    }
+  }
+
+  function drawHeroFrame(time) {
+    animationFrame = 0;
+    if (!inView || !heroMotion.matches || document.hidden || playbackFailed) return;
+    if (previousTime !== null) elapsed = (elapsed + Math.min(time - previousTime, 120)) % loopDuration;
+    const frame = Math.floor(elapsed * framesPerSecond / 1000);
+    const index = Math.floor(frame / framesPerSheet);
+    const sheet = sheets.get(index);
+
+    if (!sheet) {
+      loadHeroSheet(index);
+      elapsed = index * framesPerSheet * 1000 / framesPerSecond;
+      previousTime = null;
+      return;
+    }
+
+    if (frame !== renderedFrame) {
+      const tile = frame % framesPerSheet;
+      heroContext.drawImage(sheet, (tile % columns) * width, Math.floor(tile / columns) * height, width, height, 0, 0, width, height);
+      if (renderedFrame === -1) heroCanvas.hidden = false;
+      const previousIndex = Math.floor(renderedFrame / framesPerSheet);
+      if (previousIndex !== index) {
+        sheets.delete(previousIndex);
+        loadHeroSheet((index + 1) % sheetCount);
+      }
+      renderedFrame = frame;
+    }
+
+    previousTime = time;
+    scheduleHeroFrame();
+  }
+
+  function syncHeroMotion() {
+    previousTime = null;
+    scheduleHeroFrame();
+  }
+
+  const visibleThreshold = 0.15;
+  const heroObserver = new IntersectionObserver(([entry]) => {
+    inView = entry.intersectionRatio >= visibleThreshold;
+    if (!inView) waitingForAnchor = false;
+    syncHeroMotion();
+  }, { threshold: visibleThreshold });
+  heroObserver.observe(heroCanvas.closest(".hero"));
+  heroMotion.addEventListener("change", syncHeroMotion);
+  document.addEventListener("visibilitychange", syncHeroMotion);
+  window.addEventListener("hashchange", () => {
+    if (location.hash === "#top" || location.hash === "#main" || !location.hash) {
+      waitingForAnchor = false;
+      syncHeroMotion();
+    }
+  });
+}
+
 if (!CSS.supports("animation-timeline: view()") && "IntersectionObserver" in window) {
   const revealObserver = new IntersectionObserver(entries => {
     for (const entry of entries) {

@@ -10,7 +10,6 @@
   <link rel="alternate" hreflang="ar" href="https://carbon-qatar.vercel.app/ar/">
   <link rel="alternate" hreflang="en" href="https://carbon-qatar.vercel.app/">
   <link rel="icon" href="./assets/logo.avif" type="image/avif">
-  <link rel="preload" as="image" href="/assets/carbon-motion.webp" media="(prefers-reduced-motion: no-preference)" type="image/webp" fetchpriority="high">
   <link rel="stylesheet" href="./site.css">
   <script src="./site.js" defer></script>
   <title>Carbon Auto Car Care Services | Doha, Qatar</title>
@@ -36,10 +35,10 @@
   </header>
   <main id="main">
     <section class="hero" aria-labelledby="hero-title">
-      <picture class="hero-media" aria-hidden="true">
-        <source media="(prefers-reduced-motion: no-preference)" type="image/webp" srcset="/assets/carbon-motion.webp">
+      <div class="hero-media" aria-hidden="true">
         <img src="/assets/carbon-interior.webp" alt="" fetchpriority="high">
-      </picture>
+        <canvas width="600" height="1066" hidden></canvas>
+      </div>
       <div class="shell hero-grid">
         <div class="hero-copy">
           <p class="eyebrow"><span></span> Auto car care · Doha, Qatar</p>
